@@ -6,8 +6,12 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 import { createMarkup } from './js/render-functions';
 import { fetchRequest } from './js/pixabay-api';
 
-
-
+const simpleLightbox = new SimpleLightbox('.gallery a',
+    {
+        captionsData: "alt",
+        captionPosition: "bottom",
+        captionDelay: 250,
+    });
 
 
 const form = document.querySelector("form");
@@ -24,38 +28,26 @@ function handleSubmit(event) {
     
     event.preventDefault();
     loader.classList.toggle("loader");
-    
+    gallery.innerHTML = "";
+
     const request = event.target.elements.text.value.trim();
     if (!request) {
         return
     }
 
      fetchRequest(request)
-        .then((response) => {
-             if (!response.ok) {
-            throw new Error (response.statusText)
-        }
-            return response.json();
-        })
         .then(post => { 
                 
              if (post.total === 0) {
-                 gallery.innerHTML ="";
                 iziToast.error({ message: 'Sorry, there are no images matching your search query. Please try again!'});
                 
             } else {
                 
-                gallery.innerHTML = createMarkup(post.hits);
-              
-                new SimpleLightbox('.gallery a', {
-                captionsData: "alt",
-                captionPosition: "bottom",
-                captionDelay: 250,
-                });
-                 
+                gallery.innerHTML = createMarkup(post.hits); 
+                simpleLightbox.refresh();
+                
              }
-            
-            // SimpleLightbox.refresh();
+         
             loader.classList.toggle("loader");
             form.reset();
            
